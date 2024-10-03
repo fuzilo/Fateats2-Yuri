@@ -4,12 +4,23 @@ import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -76,6 +87,9 @@ fun HomeScreen(products: List<Product> = sampleProducts) {
             }
         )
     }
+
+
+
     HomeScreen(state = state)
 }
 
@@ -97,6 +111,54 @@ fun HomeScreen(
                 .padding(16.dp)
                 .fillMaxWidth(),
         )
+
+        Row {
+            var showTable by remember { mutableStateOf(true) }
+            var hide by remember { mutableStateOf(true) }
+
+            if (showTable){
+                Text(text = "ValoresBuscados")
+            }
+
+            if (hide){
+                Text(text = "Escondeu")
+            }
+
+            OutlinedButton(onClick = { showTable=false  }) {
+                Icon(
+                    imageVector = Icons.Default.Home,
+                    contentDescription = "Home"
+                )
+                Text(text = "Home")
+
+            }
+            OutlinedButton(onClick = { showTable=true }) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search"
+                )
+                Text(text = "Busca")
+            }
+               Column {
+                   OutlinedButton(onClick = { hide = false }) {
+                       Icon(
+                           imageVector = Icons.Default.KeyboardArrowDown,
+                           contentDescription = "Mostrar Produtos"
+                       )
+
+                   }
+                   OutlinedButton(onClick = { hide = true }) {
+                       Icon(
+                           imageVector = Icons.Default.KeyboardArrowUp,
+                           contentDescription = "Esconder Produtos"
+                       )
+
+                   }
+               }
+            }
+
+
+
 
         LazyColumn(
             Modifier
