@@ -111,20 +111,10 @@ fun HomeScreen(
                 .padding(16.dp)
                 .fillMaxWidth(),
         )
-
+        var showTable by remember { mutableStateOf(true) }
+        var hide by remember { mutableStateOf(true) }
         Row {
-            var showTable by remember { mutableStateOf(true) }
-            var hide by remember { mutableStateOf(true) }
-
-            if (showTable){
-                Text(text = "ValoresBuscados")
-            }
-
-            if (hide){
-                Text(text = "Escondeu")
-            }
-
-            OutlinedButton(onClick = { showTable=false  }) {
+            OutlinedButton(onClick = { showTable = true }) {
                 Icon(
                     imageVector = Icons.Default.Home,
                     contentDescription = "Home"
@@ -132,62 +122,61 @@ fun HomeScreen(
                 Text(text = "Home")
 
             }
-            OutlinedButton(onClick = { showTable=true }) {
+            OutlinedButton(onClick = { showTable = false }) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search"
                 )
                 Text(text = "Busca")
             }
-               Column {
-                   OutlinedButton(onClick = { hide = false }) {
-                       Icon(
-                           imageVector = Icons.Default.KeyboardArrowDown,
-                           contentDescription = "Mostrar Produtos"
-                       )
+            Column {
+                OutlinedButton(onClick = { hide = false }) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowDown,
+                        contentDescription = "Mostrar Produtos"
+                    )
 
-                   }
-                   OutlinedButton(onClick = { hide = true }) {
-                       Icon(
-                           imageVector = Icons.Default.KeyboardArrowUp,
-                           contentDescription = "Esconder Produtos"
-                       )
+                }
+                OutlinedButton(onClick = { hide = true }) {
+                    Icon(
+                        imageVector = Icons.Default.KeyboardArrowUp,
+                        contentDescription = "Esconder Produtos"
+                    )
 
-                   }
-               }
+                }
             }
-
-
-
-
-        LazyColumn(
-            Modifier
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 16.dp)
-        ) {
-            if (state.isShowSections()) {
-                for (section in sections) {
-                    val title = section.key
-                    val products = section.value
-                    item {
-                        ProductsSection(
-                            title = title,
-                            products = products
+        }
+        if (!hide) {
+            LazyColumn(
+                Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                if (showTable) {
+                    for (section in sections) {
+                        val title = section.key
+                        val products = section.value
+                        item {
+                            ProductsSection(
+                                title = title,
+                                products = products
+                            )
+                        }
+                    }
+                } else {
+                    items(searchedProducts) { p ->
+                        CardProductItem(
+                            product = p,
+                            Modifier.padding(horizontal = 16.dp),
                         )
                     }
-                }
-            } else {
-                items(searchedProducts) { p ->
-                    CardProductItem(
-                        product = p,
-                        Modifier.padding(horizontal = 16.dp),
-                    )
                 }
             }
         }
     }
 }
+
 
 @Preview(showSystemUi = true)
 @Composable
