@@ -14,4 +14,7 @@ class ProductDao {
         products.add(product)
     }
 
+    fun getProductById(id:Int):Product?{
+        return products.find{it.id == id}
+    }
 }

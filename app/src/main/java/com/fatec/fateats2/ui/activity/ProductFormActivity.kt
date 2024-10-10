@@ -7,10 +7,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -18,12 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -33,44 +26,65 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.LineHeightStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.fatec.fateats2.R
 import com.fatec.fateats2.dao.ProductDao
 import com.fatec.fateats2.model.Product
-import com.fatec.fateats2.ui.components.CustomTopAppBar
-import com.fatec.fateats2.ui.screens.HomeScreen
 import com.fatec.fateats2.ui.theme.Fateats2Theme
 import java.math.BigDecimal
+import kotlin.random.Random
 
 class ProductFormActivity : ComponentActivity() {
     private val dao = ProductDao()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         enableEdgeToEdge()
         setContent {
+            val productId = intent.getIntExtra("productId",0)
+            Log.i("ProductItem", "click")
             Fateats2Theme {
                 Surface {
-                    ProductFormScreen(onSaveClick = { product ->
-                        dao.save(product = product)
-                        finish()
-                    })
+                    val productParam = dao.getProductById(id=productId)?: productDefault()
+                    if (productId != 0){
+                        ProductFormScreen(
+                            onSaveClick = { product ->
+                            dao.save(product = product)
+                            finish()
+                        },
+                            product = productParam)
+                    }else {
+                        ProductFormScreen(onSaveClick = { product ->
+                            dao.save(product = product)
+                            finish()
+                        })
+                    }
                 }
             }
         }
     }
+     fun  productDefault() = Product(
+         id=0,
+         name= "",
+         price = BigDecimal.ZERO,
+         image = "",
+         description = ""
+
+     )
 
     @Composable
-    fun ProductFormScreen(onSaveClick: (Product) -> Unit) {
+    fun ProductFormScreen(
+        onSaveClick: (Product) -> Unit={},
+        product: Product = productDefault()
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -81,17 +95,18 @@ class ProductFormActivity : ComponentActivity() {
             Spacer(modifier = Modifier.padding(6.dp))
 
             var url by remember {
-                mutableStateOf("")
+                mutableStateOf(product.image.toString())
             }
-            if(url.isNotBlank()){
-                AsyncImage(model = url, contentDescription =null,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
+            if (url.isNotBlank()) {
+                AsyncImage(
+                    model = url, contentDescription = null,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
                     contentScale = ContentScale.Crop,
-                    placeholder = painterResource(id= R.drawable.placeholder),
+                    placeholder = painterResource(id = R.drawable.placeholder),
                     error = painterResource(id = R.drawable.placeholder)
-                    )
+                )
 
             }
 
@@ -109,13 +124,13 @@ class ProductFormActivity : ComponentActivity() {
             )
 
             var name by remember {
-                mutableStateOf("")
+                mutableStateOf(product.name)
             }
             TextField(
                 value = name,
-                onValueChange = {name= it},
+                onValueChange = { name = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(text = "Nome")},
+                label = { Text(text = "Nome") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Go,
@@ -133,14 +148,14 @@ class ProductFormActivity : ComponentActivity() {
                 onValueChange = {
                     try {
                         price = formatter.format(BigDecimal(it))
-                    }catch(e: IllegalArgumentException){
-                        if(it.isBlank()){
+                    } catch (e: IllegalArgumentException) {
+                        if (it.isBlank()) {
                             price = it
                         }
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text(text = "Preço")},
+                label = { Text(text = "Preço") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Go,
@@ -149,15 +164,15 @@ class ProductFormActivity : ComponentActivity() {
             )
 
             var description by remember {
-                mutableStateOf("")
+                mutableStateOf(product.description.toString())
             }
             TextField(
                 value = description,
-                onValueChange = {description = it},
+                onValueChange = { description = it },
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 100.dp),
-                label = { Text(text = "Descrição")},
+                label = { Text(text = "Descrição") },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Go,
@@ -166,28 +181,31 @@ class ProductFormActivity : ComponentActivity() {
             )
 
             // Botão de salvar
-//            Button(
-//                onClick = {
-//                    val convertedPrice = try {
-//                        BigDecimal(price)
-//                    } catch (e: NumberFormatException) {
-//                        BigDecimal.ZERO
-//                    }
-//                    val product = Product(
-//                        name = name,
-//                        image = url,
-//                        price = convertedPrice,
-//                        description = description
-//                    )
-//                    Log.i(tag)
-//
-//                },
-//                modifier = Modifier.align(LineHeightStyle.Alignment.End)
-//            ) {
-//                Text("Salvar")
+            Button(
+                onClick = {
+                    val convertedPrice = try {
+                        BigDecimal(price)
+                    } catch (e: NumberFormatException) {
+                        BigDecimal.ZERO
+                    }
+                    val product = Product(
+                        id= Random(1234).nextInt(),
+                        name = name,
+                        image = url,
+                        price = convertedPrice,
+                        description = description
+                    )
+                    Log.i("ProductFormActivity","ProductFormActivity,$product")
+                    onSaveClick(product)
+                },
+                modifier = Modifier.padding(top = 20.dp)
+
+            ) {
+                Text("Salvar")
             }
         }
     }
+}
 
 
 //    @Preview

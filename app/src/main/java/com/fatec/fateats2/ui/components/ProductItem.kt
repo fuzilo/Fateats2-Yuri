@@ -42,12 +42,14 @@ import java.math.BigDecimal
 @Composable
 fun ProductItem(
     product: Product,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClickProductItem: () -> Unit ={}
 ) {
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(15.dp),
-        elevation = CardDefaults.elevatedCardElevation(4.dp)
+        elevation = CardDefaults.elevatedCardElevation(4.dp),
+        onClick = onClickProductItem
     ) {
         Column(
             modifier = Modifier
@@ -87,6 +89,13 @@ fun ProductItem(
                 Text(
                     text = product.name,
                     fontSize = 18.sp,
+                    fontWeight = FontWeight(700),
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "Código: "+ product.id.toString(),
+                    fontSize = 12.sp,
                     fontWeight = FontWeight(700),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
